@@ -6,8 +6,13 @@ services:
     container_name: fastapi-application
     environment:
       PORT: 8000
+      MONGODB_URI: "mongodb://admin:password@mongodb:27017"
+      MONGODB_DB: "technical_test"
+      EXTERNAL_API_BASE_URL: "https://pruebareactjs.test-class.com/Api"
     ports:
       - '8000:8000'
+    depends_on:
+      - mongodb
     restart: "no"
   mongodb:
     image: mongo:latest
