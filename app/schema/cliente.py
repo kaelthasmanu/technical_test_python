@@ -22,10 +22,13 @@ class ClienteListadoItem(BaseModel):
 
 class ClienteDetalle(BaseModel):
     id: str
-    identificacion: str
-    nombre: str
-    apellidos: str
-    genero: Literal["M", "F"] = Field(..., description="M=Masculino, F=Femenino")
+    identificacion: str | None = Field(default=None)
+    nombre: str | None = Field(default=None)
+    apellidos: str | None = Field(default=None)
+    genero: Literal["M", "F"] | None = Field(
+        default=None,
+        description="M=Masculino, F=Femenino",
+    )
     imagen: str | None = Field(default=None, description="Imagen en base64")
     intereses: list[IntereseItem] = Field(default_factory=list)
 

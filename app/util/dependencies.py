@@ -5,7 +5,8 @@ import json
 from typing import Annotated
 
 import httpx
-from fastapi import Depends, Header, HTTPException, Request, status
+from fastapi import Depends, HTTPException, Request, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from .http_client import get_http_client
@@ -29,18 +30,20 @@ def get_db(request: Request) -> AsyncIOMotorDatabase:
 # Authorization dependency
 # ---------------------------------------------------------------------------
 
+bearer_scheme = HTTPBearer(auto_error=False)
+
 
 async def get_authorization(
-    authorization: Annotated[str | None, Header()] = None,
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Security(bearer_scheme)] = None,
 ) -> str:
     """Extract and validate the Bearer token from the Authorization header."""
-    if not authorization or not authorization.startswith("Bearer "):
+    if not credentials or credentials.scheme.lower() != "bearer":
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authorization header missing or invalid",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    return authorization
+    return f"Bearer {credentials.credentials}"
 
 
 # ---------------------------------------------------------------------------

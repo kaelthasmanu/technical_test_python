@@ -61,7 +61,27 @@ class ClienteService:
                 status_code=response.status_code,
                 detail=response.json(),
             )
-        return ClienteDetalle(**response.json())
+
+        payload = response.json()
+        if isinstance(payload, list):
+            if not payload:
+                raise HTTPException(
+                    status_code=404,
+                    detail="Cliente no encontrado",
+                )
+            payload = payload[0]
+
+        try:
+            return ClienteDetalle(**payload)
+        except Exception as exc:
+            raise HTTPException(
+                status_code=502,
+                detail={
+                    "message": "Respuesta inválida de la API externa",
+                    "external_response": payload,
+                    "error": str(exc),
+                },
+            )
 
     # ------------------------------------------------------------------
     # Write operations (logged to MongoDB)
