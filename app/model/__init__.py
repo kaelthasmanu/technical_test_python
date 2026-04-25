@@ -1,5 +1,5 @@
 from .mongo import PyObjectId
-from .operation import OperationDocument
-from .session import SessionDocument
+from .operation import OperationModel
+from .session import SessionModel
 
-__all__ = ["PyObjectId", "OperationDocument", "SessionDocument"]
+__all__ = ["PyObjectId", "OperationModel", "SessionModel"]
