@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from json import JSONDecodeError
+
 import httpx
 from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
@@ -29,6 +32,23 @@ class ClienteService:
         self._client = client
         self._operation_repo = OperationRepository(db)
         self._username = username
+
+    def _parse_response(self, response: httpx.Response) -> dict | None:
+        if not response.content:
+            return None
+        try:
+            return response.json()
+        except JSONDecodeError:
+            return None
+
+    def _raise_for_status(self, response: httpx.Response) -> dict | None:
+        payload = self._parse_response(response)
+        if response.status_code != 200:
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=payload if payload is not None else response.text,
+            )
+        return payload
 
     # ------------------------------------------------------------------
     # Read operations
@@ -94,14 +114,10 @@ class ClienteService:
     ) -> SuccessResponse:
         response = await self._client.post(
             "/api/Cliente/Crear",
-            json=request.model_dump(),
+            json=request.model_dump(exclude_none=True, by_alias=True),
             headers={"Authorization": authorization},
         )
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=response.json(),
-            )
+        payload = self._raise_for_status(response)
 
         await self._operation_repo.create(
             OperationCreateDTO(
@@ -112,7 +128,10 @@ class ClienteService:
             )
         )
 
-        return SuccessResponse(**response.json())
+        if payload is None:
+            return SuccessResponse(status="Success", message="Cliente creado correctamente")
+
+        return SuccessResponse(**payload)
 
     async def actualizar(
         self,
@@ -121,14 +140,10 @@ class ClienteService:
     ) -> SuccessResponse:
         response = await self._client.post(
             "/api/Cliente/Actualizar",
-            json=request.model_dump(),
+            json=request.model_dump(exclude_none=True, by_alias=True),
             headers={"Authorization": authorization},
         )
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=response.json(),
-            )
+        payload = self._raise_for_status(response)
 
         await self._operation_repo.create(
             OperationCreateDTO(
@@ -139,18 +154,17 @@ class ClienteService:
             )
         )
 
-        return SuccessResponse(**response.json())
+        if payload is None:
+            return SuccessResponse(status="Success", message="Cliente actualizado correctamente")
+
+        return SuccessResponse(**payload)
 
     async def eliminar(self, cliente_id: str, authorization: str) -> SuccessResponse:
         response = await self._client.delete(
             f"/api/Cliente/Eliminar/{cliente_id}",
             headers={"Authorization": authorization},
         )
-        if response.status_code != 200:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=response.json(),
-            )
+        payload = self._raise_for_status(response)
 
         await self._operation_repo.create(
             OperationCreateDTO(
@@ -161,4 +175,7 @@ class ClienteService:
             )
         )
 
-        return SuccessResponse(**response.json())
+        if payload is None:
+            return SuccessResponse(status="Success", message="Cliente eliminado correctamente")
+
+        return SuccessResponse(**payload)
