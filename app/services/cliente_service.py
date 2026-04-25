@@ -123,7 +123,7 @@ class ClienteService:
             OperationCreateDTO(
                 accion="CREAR",
                 usuario=self._username,
-                cliente_id=request.id,
+                cliente_id=request.identificacion,
                 resultado=response.status_code,
             )
         )
