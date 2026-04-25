@@ -53,3 +53,8 @@ class RegisterRequest(BaseModel):
 class RegisterResponse(BaseModel):
     status: str
     message: str
+
+
+class LogoutResponse(BaseModel):
+    status: str
+    message: str

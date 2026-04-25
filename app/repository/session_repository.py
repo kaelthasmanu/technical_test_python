@@ -17,3 +17,7 @@ class SessionRepository:
 
     async def create(self, dto: SessionCreateDTO) -> None:
         await self.collection.insert_one(dto.model_dump())
+
+    async def delete_by_token(self, token: str) -> int:
+        result = await self.collection.delete_one({"token": token})
+        return result.deleted_count

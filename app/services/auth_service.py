@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.repository.session_repository import SessionRepository
-from app.schema.auth import LoginRequest, LoginResponse, RegisterRequest, RegisterResponse
+from app.schema.auth import LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, LogoutResponse
 from app.schema.session import SessionCreateDTO
 
 
@@ -46,10 +46,18 @@ class AuthService:
             "/api/Authenticate/register",
             json=request.model_dump(),
         )
-        if response.status_code != 200:
+        if response.status_code not in (200, 201):
             raise HTTPException(
                 status_code=response.status_code,
                 detail=response.json(),
             )
 
         return RegisterResponse(**response.json())
+
+    async def logout(self, authorization: str) -> LogoutResponse:
+        token = authorization.removeprefix("Bearer ")
+        await self._session_repo.delete_by_token(token)
+        return LogoutResponse(
+            status="Success",
+            message="Sesión cerrada correctamente",
+        )
