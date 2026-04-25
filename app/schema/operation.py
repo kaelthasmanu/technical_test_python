@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -14,7 +14,7 @@ class OperationCreateDTO(BaseModel):
     usuario: str = Field(..., description="Username del usuario que ejecutó la acción")
     cliente_id: str = Field(..., description="ID del cliente afectado")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Fecha y hora de la operación en formato ISO 8601",
     )
     resultado: int = Field(..., description="Código HTTP de respuesta de la API de Innovasoft")

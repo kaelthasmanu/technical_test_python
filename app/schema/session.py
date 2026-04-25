@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -10,7 +10,7 @@ class SessionCreateDTO(BaseModel):
     userid: str = Field(..., description="ID del usuario en la API de Innovasoft")
     username: str = Field(..., description="Nombre del usuario autenticado")
     login_timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Fecha y hora del login en formato ISO 8601",
     )
 
