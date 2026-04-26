@@ -40,46 +40,40 @@ Several SOLID principles are explicitly applied:
 - **Interface Segregation Principle**: Different route groups and service interfaces are segregated by domain (`auth`, `cliente`, `intereses`).
 - **Liskov Substitution Principle**: Schemas and service contracts are designed to return consistent DTOs and response shapes across routes.
 
-### Backend Tree
+### Backend Structure
 
 ```text
 backend/
-  .env
-  Dockerfile
-  README.md
-  main.py
-  pyproject.toml
-  requirements.txt
-  compose.yaml
+  main.py               # bootstraps FastAPI and MongoDB lifecycle
   app/
-    api/
+    api/                # HTTP layer, route definitions, request validation
       authenticate.py
       cliente.py
       intereses.py
-      __init__.py
-    services/
+    services/           # domain services and external API proxy logic
       auth_service.py
       cliente_service.py
       intereses_service.py
-    repository/
-      base.py
+    repository/         # persistence layer for audit and session storage
       operation_repository.py
       session_repository.py
-    schema/
+    schema/             # Pydantic models, DTOs and API schemas
       auth.py
       cliente.py
       intereses.py
       operation.py
       session.py
-    model/
+    model/              # MongoDB models and low-level database helpers
       mongo.py
       operation.py
       session.py
-    util/
+    util/               # shared wiring, dependency injection, HTTP client, settings
       dependencies.py
       http_client.py
       settings.py
 ```
+
+This backend structure is intentionally layered: `api/` handles HTTP coordination, `services/` contains business and integration logic, `repository/` persists state, `schema/` defines contracts, and `util/` wires shared resources.
 
 ---
 
@@ -107,46 +101,29 @@ The frontend uses these good practices:
 - **Separation of concerns** — UI components, service calls, routing, and schema validation are separated.
 - **Reusable shared modules** — common behavior and theme styling are centralized under `shared/`.
 
-### Frontend Tree
+### Frontend Structure
 
 ```text
 frontend/
-  package.json
-  package-lock.json
-  public/
+  package.json          # React app dependencies and scripts
   src/
-    App.js
-    index.js
-    constants/
-      routes.js
-    router/
+    App.js              # root app composition and provider wiring
+    index.js            # app bootstrap and React DOM mounting
+    router/             # navigation and protected route handling
       AppRouter.js
-    features/
-      auth/
-        components/
-        context/
-        hooks/
-        schemas/
-        services/
-        index.js
-      clients/
-        components/
-        hooks/
-        schemas/
-        services/
-        index.js
-      home/
-        components/
-        index.js
-      error_pages/
-        components/
-        index.js
-    shared/
+    features/           # feature-based modules with pages, services, and hooks
+      auth/             # login, registration, auth state, and auth service
+      clients/          # client listing, maintenance, and API integration
+      home/             # home dashboard and feature-specific UI
+      error_pages/      # 404 and error page components
+    shared/             # reusable shared utilities, context, theme, and API helpers
       api/
       components/
       context/
       theme/
 ```
+
+This frontend structure follows a feature-based architecture: each domain owns its own UI, service logic, and validation schemas, while shared utilities are centralized under `shared/`.
 
 ---
 
