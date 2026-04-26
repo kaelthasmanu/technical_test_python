@@ -134,6 +134,18 @@ This frontend structure follows a feature-based architecture: each domain owns i
 - Keep adding new features in the frontend as self-contained feature modules.
 - Keep extending backend services and repositories without coupling route handlers to persistence details.
 
+## Technical Compliance
+
+This monorepo is designed to meet the test requirements:
+
+- Backend built with **Python 3.10+** using **FastAPI**.
+- External API consumption via **httpx** in asynchronous mode.
+- Session persistence in **MongoDB** storing JWT token, authenticated user data, login timestamp, and session cleanup on logout.
+- Application configurable for multiple environments using **Docker** and environment variables.
+- Supported environment configuration via `.env` files and container environment variables for production, staging, and local setups.
+- Strong input validation for required fields, data types, and formats through Pydantic schemas.
+- Code organized for readability, maintainability, and clean architecture best practices.
+
 ---
 
 ## Professional Notes
