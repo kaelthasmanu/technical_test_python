@@ -5,10 +5,10 @@ services:
       dockerfile: Dockerfile
     container_name: fastapi-application
     environment:
-      PORT: 8000
-      MONGODB_URI: "mongodb://admin:password@mongodb:27017"
-      MONGODB_DB: "technical_test"
-      EXTERNAL_API_BASE_URL: "https://pruebareactjs.test-class.com/Api"
+      PORT: ${PORT:-8000}
+      MONGODB_URI: ${MONGODB_URI}
+      MONGODB_DB: ${MONGODB_DB}
+      EXTERNAL_API_BASE_URL: ${EXTERNAL_API_BASE_URL}
     ports:
       - '8000:8000'
     depends_on:
@@ -30,8 +30,8 @@ services:
     ports:
       - "27017:27017"
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     volumes:
       - mongodb_data:/data/db
     restart: unless-stopped
