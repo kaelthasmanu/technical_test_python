@@ -1,7 +1,8 @@
 services:
   api:
     build:
-      context: .
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: fastapi-application
     environment:
       PORT: 8000
@@ -13,6 +14,16 @@ services:
     depends_on:
       - mongodb
     restart: "no"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: react-frontend
+    ports:
+      - '8080:8080'
+    restart: "no"
+
   mongodb:
     image: mongo:latest
     container_name: mongodb
