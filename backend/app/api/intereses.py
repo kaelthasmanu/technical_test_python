@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from backend.app.schema.intereses import IntereseItem
-from backend.app.util.dependencies import AuthDep, InteresesServiceDep
+from ..schema.intereses import IntereseItem
+from ..util.dependencies import AuthDep, InteresesServiceDep
 
 router = APIRouter(prefix="/api/Intereses", tags=["Intereses"])
 

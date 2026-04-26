@@ -6,8 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 
-from backend.app.api import api_router
-from backend.app.util.settings import CORS_ORIGINS, MONGODB_DB, MONGODB_URI
+from app.api import api_router
+from app.util.settings import CORS_ORIGINS, MONGODB_DB, MONGODB_URI
 
 
 @asynccontextmanager

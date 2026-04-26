@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 
-from backend.app.schema.session import SessionCreateDTO
+from ..schema.session import SessionCreateDTO
 
 
 class SessionRepository:

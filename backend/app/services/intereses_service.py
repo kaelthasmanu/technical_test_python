@@ -3,7 +3,7 @@ from __future__ import annotations
 import httpx
 from fastapi import HTTPException
 
-from backend.app.schema.intereses import IntereseItem
+from ..schema.intereses import IntereseItem
 
 
 class InteresesService:

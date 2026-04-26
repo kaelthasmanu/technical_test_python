@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorDatabase
 
-from backend.app.schema.operation import OperationCreateDTO
+from ..schema.operation import OperationCreateDTO
 
 
 class OperationRepository:

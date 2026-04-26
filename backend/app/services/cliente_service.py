@@ -7,8 +7,8 @@ import httpx
 from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from backend.app.repository.operation_repository import OperationRepository
-from backend.app.schema.cliente import (
+from ..repository.operation_repository import OperationRepository
+from ..schema.cliente import (
     ClienteCreateRequest,
     ClienteDetalle,
     ClienteListadoItem,
@@ -16,7 +16,7 @@ from backend.app.schema.cliente import (
     ClienteUpdateRequest,
     SuccessResponse,
 )
-from backend.app.schema.operation import OperationCreateDTO
+from ..schema.operation import OperationCreateDTO
 
 
 class ClienteService:

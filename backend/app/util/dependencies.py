@@ -10,9 +10,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from .http_client import get_http_client
-from backend.app.services.auth_service import AuthService
-from backend.app.services.cliente_service import ClienteService
-from backend.app.services.intereses_service import InteresesService
+from ..services.auth_service import AuthService
+from ..services.cliente_service import ClienteService
+from ..services.intereses_service import InteresesService
 
 # ---------------------------------------------------------------------------
 # Database dependency

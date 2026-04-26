@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from backend.app.schema.cliente import (
+from ..schema.cliente import (
     ClienteCreateRequest,
     ClienteDetalle,
     ClienteListadoItem,
@@ -10,7 +10,7 @@ from backend.app.schema.cliente import (
     ClienteUpdateRequest,
     SuccessResponse,
 )
-from backend.app.util.dependencies import AuthDep, ClienteServiceDep
+from ..util.dependencies import AuthDep, ClienteServiceDep
 
 router = APIRouter(prefix="/api/Cliente", tags=["Cliente"])
 

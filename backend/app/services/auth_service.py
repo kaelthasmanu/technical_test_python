@@ -4,9 +4,9 @@ import httpx
 from fastapi import HTTPException
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
-from backend.app.repository.session_repository import SessionRepository
-from backend.app.schema.auth import LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, LogoutResponse
-from backend.app.schema.session import SessionCreateDTO
+from ..repository.session_repository import SessionRepository
+from ..schema.auth import LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, LogoutResponse
+from ..schema.session import SessionCreateDTO
 
 
 class AuthService:

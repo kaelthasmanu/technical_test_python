@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from backend.app.schema.auth import (
+from ..schema.auth import (
     LoginRequest,
     LoginResponse,
     LogoutResponse,
     RegisterRequest,
     RegisterResponse,
 )
-from backend.app.util.dependencies import AuthDep, AuthServiceDep
+from ..util.dependencies import AuthDep, AuthServiceDep
 
 router = APIRouter(prefix="/api/Authenticate", tags=["Authenticate"])
 
