@@ -9,6 +9,7 @@ services:
       MONGODB_URI: ${MONGODB_URI}
       MONGODB_DB: ${MONGODB_DB}
       EXTERNAL_API_BASE_URL: ${EXTERNAL_API_BASE_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
     ports:
       - '8000:8000'
     depends_on:
@@ -20,6 +21,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: react-frontend
+    environment:
+      - REACT_APP_API_BASE_URL=${REACT_APP_API_BASE_URL}
     ports:
       - '8080:8080'
     restart: "no"

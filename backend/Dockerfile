@@ -23,4 +23,4 @@ WORKDIR /app
 RUN uv sync --locked
 
 # Presuming there is a `my_app` command provided by the project
-CMD ["uv", "run", "my_app"]
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

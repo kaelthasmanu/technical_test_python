@@ -33,7 +33,6 @@ MANIFEST
 
 # UV
 .venv
-uv.lock
 
 # IDE
 .vscode
