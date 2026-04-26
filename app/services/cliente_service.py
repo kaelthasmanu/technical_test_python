@@ -50,6 +50,59 @@ class ClienteService:
             )
         return payload
 
+# ------------------------------------------------------------------
+    # Common utilities for write operations
+    # ------------------------------------------------------------------
+    def _resolve_cliente_id(self, payload: dict | None, fallback: str) -> str:
+        if isinstance(payload, dict):
+            return (
+                payload.get("id")
+                or payload.get("cliente_id")
+                or payload.get("clienteId")
+                or fallback
+            )
+        return fallback
+
+    async def _record_operation(
+        self,
+        accion: str,
+        cliente_id: str,
+        resultado: int,
+    ) -> None:
+        await self._operation_repo.create(
+            OperationCreateDTO(
+                accion=accion,
+                usuario=self._username,
+                cliente_id=cliente_id,
+                resultado=resultado,
+            )
+        )
+
+    async def _handle_write_response(
+        self,
+        response: httpx.Response,
+        accion: str,
+        cliente_id: str,
+        success_message: str,
+    ) -> SuccessResponse:
+        payload = self._parse_response(response)
+        await self._record_operation(
+            accion=accion,
+            cliente_id=cliente_id,
+            resultado=response.status_code,
+        )
+
+        if response.status_code not in (200, 201, 204):
+            raise HTTPException(
+                status_code=response.status_code,
+                detail=payload if payload is not None else response.text,
+            )
+
+        if payload is None:
+            return SuccessResponse(status="Success", message=success_message)
+
+        return SuccessResponse(**payload)
+
     # ------------------------------------------------------------------
     # Read operations
     # ------------------------------------------------------------------
@@ -112,70 +165,75 @@ class ClienteService:
         request: ClienteCreateRequest,
         authorization: str,
     ) -> SuccessResponse:
-        response = await self._client.post(
-            "/api/Cliente/Crear",
-            json=request.model_dump(exclude_none=True, by_alias=True),
-            headers={"Authorization": authorization},
-        )
-        payload = self._raise_for_status(response)
-
-        await self._operation_repo.create(
-            OperationCreateDTO(
-                accion="CREAR",
-                usuario=self._username,
-                cliente_id=request.identificacion,
-                resultado=response.status_code,
+        cliente_id = request.identificacion
+        try:
+            response = await self._client.post(
+                "/api/Cliente/Crear",
+                json=request.model_dump(exclude_none=True, by_alias=True),
+                headers={"Authorization": authorization},
             )
+        except httpx.HTTPError as exc:
+            await self._record_operation(
+                accion="CREAR",
+                cliente_id=cliente_id,
+                resultado=0,
+            )
+            raise HTTPException(status_code=502, detail=str(exc))
+
+        payload = self._parse_response(response)
+        cliente_id = self._resolve_cliente_id(payload, cliente_id)
+
+        return await self._handle_write_response(
+            response=response,
+            accion="CREAR",
+            cliente_id=cliente_id,
+            success_message="Cliente creado correctamente",
         )
-
-        if payload is None:
-            return SuccessResponse(status="Success", message="Cliente creado correctamente")
-
-        return SuccessResponse(**payload)
 
     async def actualizar(
         self,
         request: ClienteUpdateRequest,
         authorization: str,
     ) -> SuccessResponse:
-        response = await self._client.post(
-            "/api/Cliente/Actualizar",
-            json=request.model_dump(exclude_none=True, by_alias=True),
-            headers={"Authorization": authorization},
-        )
-        payload = self._raise_for_status(response)
-
-        await self._operation_repo.create(
-            OperationCreateDTO(
-                accion="ACTUALIZAR",
-                usuario=self._username,
-                cliente_id=request.id,
-                resultado=response.status_code,
+        cliente_id = request.id
+        try:
+            response = await self._client.post(
+                "/api/Cliente/Actualizar",
+                json=request.model_dump(exclude_none=True, by_alias=True),
+                headers={"Authorization": authorization},
             )
+        except httpx.HTTPError as exc:
+            await self._record_operation(
+                accion="ACTUALIZAR",
+                cliente_id=cliente_id,
+                resultado=0,
+            )
+            raise HTTPException(status_code=502, detail=str(exc))
+
+        return await self._handle_write_response(
+            response=response,
+            accion="ACTUALIZAR",
+            cliente_id=cliente_id,
+            success_message="Cliente actualizado correctamente",
         )
-
-        if payload is None:
-            return SuccessResponse(status="Success", message="Cliente actualizado correctamente")
-
-        return SuccessResponse(**payload)
 
     async def eliminar(self, cliente_id: str, authorization: str) -> SuccessResponse:
-        response = await self._client.delete(
-            f"/api/Cliente/Eliminar/{cliente_id}",
-            headers={"Authorization": authorization},
-        )
-        payload = self._raise_for_status(response)
-
-        await self._operation_repo.create(
-            OperationCreateDTO(
-                accion="ELIMINAR",
-                usuario=self._username,
-                cliente_id=cliente_id,
-                resultado=response.status_code,
+        try:
+            response = await self._client.delete(
+                f"/api/Cliente/Eliminar/{cliente_id}",
+                headers={"Authorization": authorization},
             )
+        except httpx.HTTPError as exc:
+            await self._record_operation(
+                accion="ELIMINAR",
+                cliente_id=cliente_id,
+                resultado=0,
+            )
+            raise HTTPException(status_code=502, detail=str(exc))
+
+        return await self._handle_write_response(
+            response=response,
+            accion="ELIMINAR",
+            cliente_id=cliente_id,
+            success_message="Cliente eliminado correctamente",
         )
-
-        if payload is None:
-            return SuccessResponse(status="Success", message="Cliente eliminado correctamente")
-
-        return SuccessResponse(**payload)

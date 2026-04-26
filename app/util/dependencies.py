@@ -10,6 +10,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from .http_client import get_http_client
+from app.services.auth_service import AuthService
+from app.services.cliente_service import ClienteService
+from app.services.intereses_service import InteresesService
 
 # ---------------------------------------------------------------------------
 # Database dependency
@@ -19,6 +22,27 @@ from .http_client import get_http_client
 def get_db(request: Request) -> AsyncIOMotorDatabase:
     """Return the shared Motor database from app state (set at startup)."""
     return request.app.state.db
+
+
+async def get_cliente_service(
+    client: Annotated[httpx.AsyncClient, Depends(get_http_client)],
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_db)],
+    current_user: Annotated[str, Depends(get_current_user)],
+) -> ClienteService:
+    return ClienteService(client, db, current_user)
+
+
+async def get_auth_service(
+    client: Annotated[httpx.AsyncClient, Depends(get_http_client)],
+    db: Annotated[AsyncIOMotorDatabase, Depends(get_db)],
+) -> AuthService:
+    return AuthService(client, db)
+
+
+async def get_intereses_service(
+    client: Annotated[httpx.AsyncClient, Depends(get_http_client)],
+) -> InteresesService:
+    return InteresesService(client)
 
 
 # ---------------------------------------------------------------------------
@@ -80,3 +104,6 @@ DBDep = Annotated[AsyncIOMotorDatabase, Depends(get_db)]
 HttpClientDep = Annotated[httpx.AsyncClient, Depends(get_http_client)]
 AuthDep = Annotated[str, Depends(get_authorization)]
 CurrentUserDep = Annotated[str, Depends(get_current_user)]
+ClienteServiceDep = Annotated[ClienteService, Depends(get_cliente_service)]
+AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+InteresesServiceDep = Annotated[InteresesService, Depends(get_intereses_service)]
