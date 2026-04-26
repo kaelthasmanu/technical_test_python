@@ -134,6 +134,45 @@ This frontend structure follows a feature-based architecture: each domain owns i
 - Keep adding new features in the frontend as self-contained feature modules.
 - Keep extending backend services and repositories without coupling route handlers to persistence details.
 
+## Docker Compose
+
+This repository includes a `compose.yaml` that starts the full stack:
+
+- `api` — builds the backend from `./backend` and exposes port `8000`.
+- `frontend` — builds the React app from `./frontend` and exposes port `8080`.
+- `mongodb` — starts a MongoDB container and exposes port `27017`.
+
+Environment configuration is loaded from a root `.env` file. The repository also includes `example.env` as a template for local setup.
+
+Example `.env` values:
+
+```env
+PORT=8000
+MONGODB_URI=mongodb://<username>:<password>@mongodb:27017
+MONGODB_DB=technical_test
+EXTERNAL_API_BASE_URL=https://yourapi.com/Api
+MONGO_INITDB_ROOT_USERNAME=<mongo_root_username>
+MONGO_INITDB_ROOT_PASSWORD=<mongo_root_password>
+```
+
+Start the full stack with:
+
+```bash
+docker compose up --build
+```
+
+Run in detached mode with:
+
+```bash
+docker compose up -d --build
+```
+
+Stop and remove containers with:
+
+```bash
+docker compose down
+```
+
 ## Technical Compliance
 
 This monorepo is designed to meet the test requirements:
