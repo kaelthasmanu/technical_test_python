@@ -1,29 +1,26 @@
-FROM python:3.13-slim-bookworm
+FROM python:3.12-slim-trixie
 
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PATH="/app/.venv/bin:$PATH"
+# The installer requires curl (and certificates) to download the release archive
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
 
+# Download the latest installer
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+
+# Run the installer then remove it
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+
+# Ensure the installed binary is on the `PATH`
+ENV PATH="/root/.local/bin/:$PATH"
+
+# Copy the project into the image
+COPY . /app
+
+# Disable development dependencies
+ENV UV_NO_DEV=1
+
+# Sync the project into a new environment, asserting the lockfile is up to date
 WORKDIR /app
+RUN uv sync --locked
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libpq-dev \
- && rm -rf /var/lib/apt/lists/*
-
-RUN python -m venv .venv
-
-COPY requirements.txt ./
-RUN ./.venv/bin/pip install --no-cache-dir -r requirements.txt
-
-COPY . ./
-
-RUN groupadd -g 10001 appuser && \
-    useradd -u 10001 -g appuser -s /usr/sbin/nologin -M appuser && \
-    chown -R appuser:appuser /app
-
-USER appuser
-
-EXPOSE 8000
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Presuming there is a `my_app` command provided by the project
+CMD ["uv", "run", "my_app"]
