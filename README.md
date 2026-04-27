@@ -1,150 +1,170 @@
-# Technical Test Monorepo
+# Monorepo de Prueba Técnica
 
-This repository contains a full-stack technical test implementation with two primary projects:
+Este repositorio contiene una implementación de prueba técnica full-stack con dos proyectos principales:
 
-- `backend/` — a Python FastAPI backend using a layered architecture.
-- `frontend/` — a React frontend organized using a feature-based architecture.
+- `backend/` — un backend en Python con FastAPI que usa una arquitectura en capas.
+- `frontend/` — un frontend en React organizado con una arquitectura basada en características.
 
-Both projects are built with maintainability, separation of concerns, and good engineering practices in mind.
+Ambos proyectos están construidos pensando en la mantenibilidad, la separación de responsabilidades y buenas prácticas de ingeniería.
+
+## Arquitectura General
+
+React JS → API Local (FastAPI)/MongoDB → API Innovasoft 
+
+```text
+React JS (frontend) -> API Local (FastAPI)/MongoDB
+                         |
+                         v
+                 API Innovasoft
+```
+
+### Responsabilidades de la API Local
+
+- Exponer una API REST local para el frontend React.
+- Validar y transformar solicitudes con Pydantic.
+- Persistir sesiones, tokens y auditoría en MongoDB.
+- Reenviar llamadas necesarias a la API externa de Innovasoft.
+- Procesar respuestas externas y devolver resultados al cliente.
+- Gestionar autenticación, clientes e intereses desde una capa de servicio.
 
 ---
 
-## Backend Architecture
+## Arquitectura del Backend
 
-The backend in `backend/` is structured as a layered or "clean" API service. The main layers are:
+El backend en `backend/` está estructurado como un servicio API en capas o “clean architecture”. Las capas principales son:
 
-- `api/` — FastAPI route definitions and HTTP request handling.
-- `services/` — business logic, orchestration, and external API integration.
-- `repository/` — persistence layer that writes audit records and session state to MongoDB.
-- `schema/` — request/response models, DTOs, and validation schemas.
-- `model/` — database model abstractions and MongoDB helpers.
-- `util/` — shared utilities, dependency providers, HTTP client configuration, and settings.
+- `api/` — definiciones de rutas FastAPI y manejo de solicitudes HTTP.
+- `services/` — lógica de negocio, orquestación e integración con APIs externas.
+- `repository/` — capa de persistencia que escribe registros de auditoría y estado de sesión en MongoDB.
+- `schema/` — modelos de solicitud/respuesta, DTOs y esquemas de validación.
+- `model/` — abstracciones de modelos de base de datos y utilidades de MongoDB.
+- `util/` — utilidades compartidas, proveedores de dependencias, configuración del cliente HTTP y settings.
 
-### Backend Design Patterns
+### Patrones de Diseño del Backend
 
-The backend uses several established patterns:
+El backend utiliza varios patrones establecidos:
 
-- **Layered architecture** — each layer has a clear responsibility and communicates through well-defined interfaces.
-- **Repository pattern** — `operation_repository.py` and `session_repository.py` encapsulate MongoDB persistence operations.
-- **Service layer** — `auth_service.py`, `cliente_service.py`, and `intereses_service.py` encapsulate business and integration logic.
-- **Dependency injection** — FastAPI `Depends(...)` is used in `app/util/dependencies.py` to build service instances and shared resources.
-- **Adapter / Proxy pattern** — the backend proxies requests to an external Innovasoft API while adding audit logging and local persistence.
+- **Arquitectura en capas** — cada capa tiene una responsabilidad clara y se comunica mediante interfaces bien definidas.
+- **Patrón repositorio** — `operation_repository.py` y `session_repository.py` encapsulan operaciones de persistencia en MongoDB.
+- **Capa de servicios** — `auth_service.py`, `cliente_service.py` y `intereses_service.py` encapsulan la lógica de negocio y la integración.
+- **Inyección de dependencias** — FastAPI `Depends(...)` se usa en `app/util/dependencies.py` para construir instancias de servicios y recursos compartidos.
+- **Patrón adaptador/proxy** — el backend actúa como proxy para las solicitudes a la API externa de Innovasoft, agregando auditoría y persistencia local.
 
-### Backend SOLID Principles
+### Principios SOLID del Backend
 
-Several SOLID principles are explicitly applied:
+Se aplican varios principios SOLID de forma explícita:
 
-- **Single Responsibility Principle**: Each route, service, repository, schema, and utility has a focused purpose.
-- **Open/Closed Principle**: Business logic is encapsulated in service classes so new features can be added without changing existing route handlers.
-- **Dependency Inversion Principle**: High-level route handlers depend on abstractions provided by FastAPI dependency injection, not on concrete construction logic.
-- **Interface Segregation Principle**: Different route groups and service interfaces are segregated by domain (`auth`, `cliente`, `intereses`).
-- **Liskov Substitution Principle**: Schemas and service contracts are designed to return consistent DTOs and response shapes across routes.
+- **Principio de Responsabilidad Única**: cada ruta, servicio, repositorio, esquema y utilidad tiene un propósito enfocado.
+- **Principio Abierto/Cerrado**: la lógica de negocio está encapsulada en clases de servicio para añadir nuevas funciones sin cambiar los handlers existentes.
+- **Principio de Inversión de Dependencias**: los handlers de nivel alto dependen de abstracciones provistas por la inyección de dependencias de FastAPI, no de la lógica de construcción concreta.
+- **Principio de Segregación de Interfaces**: diferentes grupos de rutas e interfaces de servicio están segregados por dominio (`auth`, `cliente`, `intereses`).
+- **Principio de Sustitución de Liskov**: los esquemas y contratos de servicio están diseñados para devolver DTOs y formatos de respuesta consistentes.
 
-### Backend Structure
+### Estructura del Backend
 
 ```text
 backend/
-  main.py               # bootstraps FastAPI and MongoDB lifecycle
+  main.py               # arranca FastAPI y el ciclo de vida de MongoDB
   app/
-    api/                # HTTP layer, route definitions, request validation
+    api/                # capa HTTP, definiciones de rutas y validación de solicitudes
       authenticate.py
       cliente.py
       intereses.py
-    services/           # domain services and external API proxy logic
+    services/           # servicios de dominio y lógica proxy para API externa
       auth_service.py
       cliente_service.py
       intereses_service.py
-    repository/         # persistence layer for audit and session storage
+    repository/         # persistencia de auditoría y almacenamiento de sesiones
       operation_repository.py
       session_repository.py
-    schema/             # Pydantic models, DTOs and API schemas
+    schema/             # modelos Pydantic, DTOs y esquemas de API
       auth.py
       cliente.py
       intereses.py
       operation.py
       session.py
-    model/              # MongoDB models and low-level database helpers
+    model/              # modelos MongoDB y helpers de bajo nivel
       mongo.py
       operation.py
       session.py
-    util/               # shared wiring, dependency injection, HTTP client, settings
+    util/               # configuración compartida, dependencia, cliente HTTP, settings
       dependencies.py
       http_client.py
       settings.py
 ```
 
-This backend structure is intentionally layered: `api/` handles HTTP coordination, `services/` contains business and integration logic, `repository/` persists state, `schema/` defines contracts, and `util/` wires shared resources.
+Esta estructura de backend está diseñada intencionalmente en capas: `api/` maneja la coordinación HTTP, `services/` contiene la lógica de negocio e integración, `repository/` persiste el estado, `schema/` define los contratos y `util/` conecta los recursos compartidos.
 
 ---
 
-## Frontend Architecture
+## Arquitectura del Frontend
 
-The frontend is implemented in `frontend/` using a **feature-based architecture**.
+El frontend está implementado en `frontend/` usando una **arquitectura basada en características**.
 
-### Feature-based organization
+### Organización basada en características
 
-The application is organized around domain features instead of technical layers. Each feature directory contains its own UI components, services, hooks, and data validation schemas.
+La aplicación se organiza alrededor de características de dominio en lugar de capas técnicas. Cada directorio de característica contiene sus propios componentes de UI, servicios, hooks y esquemas de validación de datos.
 
-Core frontend concepts include:
+Conceptos principales del frontend:
 
-- `features/` — feature modules for `auth`, `clients`, `home`, and `error_pages`.
-- `shared/` — shared utilities, theme configuration, shared components, and global context.
-- `router/` — contains navigation and route composition.
-- `constants/` — shared route definitions and static configuration.
+- `features/` — módulos de característica para `auth`, `clients`, `home` y `error_pages`.
+- `shared/` — utilidades compartidas, configuración de tema, componentes comunes y contexto global.
+- `router/` — contiene la navegación y la composición de rutas.
+- `constants/` — definiciones de rutas compartidas y configuración estática.
 
-### Frontend Design Practices
+### Buenas prácticas del Frontend
 
-The frontend uses these good practices:
+El frontend utiliza las siguientes buenas prácticas:
 
-- **Feature segmentation** — each domain owns its own page and service layer.
-- **React context** — authentication state and notifications are provided through context providers.
-- **Separation of concerns** — UI components, service calls, routing, and schema validation are separated.
-- **Reusable shared modules** — common behavior and theme styling are centralized under `shared/`.
+- **Segmentación por característica** — cada dominio tiene su propia página y capa de servicio.
+- **Contexto de React** — el estado de autenticación y las notificaciones se proporcionan mediante providers.
+- **Separación de responsabilidades** — componentes UI, llamadas a servicios, enrutamiento y validación se mantienen separados.
+- **Módulos compartidos reutilizables** — el comportamiento común y el estilo del tema se centralizan en `shared/`.
 
-### Frontend Structure
+### Estructura del Frontend
 
 ```text
 frontend/
-  package.json          # React app dependencies and scripts
+  package.json          # dependencias y scripts de la app React
   src/
-    App.js              # root app composition and provider wiring
-    index.js            # app bootstrap and React DOM mounting
-    router/             # navigation and protected route handling
+    App.js              # composición raíz de la app y providers
+    index.js            # arranque de la app y montaje en React DOM
+    router/             # navegación y manejo de rutas protegidas
       AppRouter.js
-    features/           # feature-based modules with pages, services, and hooks
-      auth/             # login, registration, auth state, and auth service
-      clients/          # client listing, maintenance, and API integration
-      home/             # home dashboard and feature-specific UI
-      error_pages/      # 404 and error page components
-    shared/             # reusable shared utilities, context, theme, and API helpers
+    features/           # módulos basados en características con páginas, servicios y hooks
+      auth/             # login, registro, estado de autenticación y servicio auth
+      clients/          # listado de clientes, mantenimiento e integración API
+      home/             # dashboard de inicio y UI específica de la característica
+      error_pages/      # componentes de página 404 y errores
+    shared/             # utilidades compartidas, contexto, tema y helpers API
       api/
       components/
       context/
       theme/
 ```
 
-This frontend structure follows a feature-based architecture: each domain owns its own UI, service logic, and validation schemas, while shared utilities are centralized under `shared/`.
+Esta estructura de frontend sigue una arquitectura basada en características: cada dominio mantiene su propia UI, lógica de servicio y esquemas de validación, mientras que las utilidades compartidas se centralizan en `shared/`.
 
 ---
 
-## Recommended Usage
+## Uso Recomendado
 
-- Use the backend to handle secure authentication, proxy external API calls, and persist audit events to MongoDB.
-- Use the frontend to render feature-specific pages, manage authentication state, and call the backend via Axios.
-- Keep adding new features in the frontend as self-contained feature modules.
-- Keep extending backend services and repositories without coupling route handlers to persistence details.
+- Usar el backend para manejar autenticación segura, proxy de llamadas a APIs externas y persistencia de eventos de auditoría en MongoDB.
+- Usar el frontend para renderizar páginas específicas de cada característica, gestionar el estado de autenticación y llamar al backend mediante Axios.
+- Seguir agregando nuevas características en el frontend como módulos auto contenidos.
+- Seguir extendiendo los servicios y repositorios del backend sin acoplar los manejadores de rutas a los detalles de persistencia.
 
 ## Docker Compose
 
-This repository includes a `compose.yaml` that starts the full stack:
+Este repositorio incluye un `compose.yaml` que inicia todo el stack:
 
-- `api` — builds the backend from `./backend` and exposes port `8000`.
-- `frontend` — builds the React app from `./frontend` and exposes port `8080`.
-- `mongodb` — starts a MongoDB container and exposes port `27017`.
+- `api` — construye el backend desde `./backend` y expone el puerto `8000`.
+- `frontend` — construye la aplicación React desde `./frontend` y expone el puerto `8080`.
+- `mongodb` — inicia un contenedor MongoDB y expone el puerto `27017`.
 
-Environment configuration is loaded from a root `.env` file. The repository also includes `example.env` as a template for local setup.
+La configuración de entorno se carga desde un archivo `.env` raíz. El repositorio también incluye `example.env` como plantilla para la configuración local.
 
-Example `.env` values:
+Valores de ejemplo para `.env`:
 
 ```env
 PORT=8000
@@ -155,43 +175,43 @@ MONGO_INITDB_ROOT_USERNAME=<mongo_root_username>
 MONGO_INITDB_ROOT_PASSWORD=<mongo_root_password>
 ```
 
-Start the full stack with:
+Inicia todo el stack con:
 
 ```bash
 docker compose up --build
 ```
 
-Run in detached mode with:
+Ejecuta en modo desacoplado con:
 
 ```bash
 docker compose up -d --build
 ```
 
-Stop and remove containers with:
+Detén y elimina los contenedores con:
 
 ```bash
 docker compose down
 ```
 
-## Technical Compliance
+## Cumplimiento Técnico
 
-This monorepo is designed to meet the test requirements:
+Este monorepo está diseñado para cumplir los requisitos de la prueba:
 
-- Backend built with **Python 3.10+** using **FastAPI**.
-- External API consumption via **httpx** in asynchronous mode.
-- Session persistence in **MongoDB** storing JWT token, authenticated user data, login timestamp, and session cleanup on logout.
-- Application configurable for multiple environments using **Docker** and environment variables.
-- Supported environment configuration via `.env` files and container environment variables for production, staging, and local setups.
-- Strong input validation for required fields, data types, and formats through Pydantic schemas.
-- Code organized for readability, maintainability, and clean architecture best practices.
+- Backend construido con **Python 3.10+** usando **FastAPI**.
+- Consumo de API externa mediante **httpx** en modo asíncrono.
+- Persistencia de sesiones en **MongoDB** almacenando token JWT, datos de usuario autenticado, timestamp de login y limpieza de sesión al logout.
+- Aplicación configurable para múltiples entornos usando **Docker** y variables de entorno.
+- Configuración de entorno soportada mediante archivos `.env` y variables de entorno de contenedor para producción, staging y local.
+- Validación de entrada fuerte para campos obligatorios, tipos de datos y formatos mediante esquemas Pydantic.
+- Código organizado para legibilidad, mantenibilidad y buenas prácticas de arquitectura limpia.
 
 ---
 
-## Professional Notes
+## Notas Profesionales
 
-This repository demonstrates a maintainable full-stack structure with:
+Este repositorio demuestra una estructura full-stack mantenible con:
 
-- explicit separation between API routes, business logic, persistence, and shared utilities in the backend,
-- a feature-based React frontend that keeps domain areas isolated,
-- SOLID-based design principles for better code quality,
-- and design patterns such as Repository, Dependency Injection, and Adapter/Proxy integration.
+- separación explícita entre rutas API, lógica de negocio, persistencia y utilidades compartidas en el backend,
+- un frontend React basado en características que mantiene aisladas las áreas de dominio,
+- principios SOLID para mejorar la calidad del código,
+- y patrones de diseño como Repositorio, Inyección de Dependencias y Adaptador/Proxy.
