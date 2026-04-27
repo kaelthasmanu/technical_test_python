@@ -7,6 +7,11 @@ Este repositorio contiene una implementación de prueba técnica full-stack con 
 
 Ambos proyectos están construidos pensando en la mantenibilidad, la separación de responsabilidades y buenas prácticas de ingeniería.
 
+Enlaces del proyecto:
+
+- Frontend: https://technical-test.ydns.eu/login
+- Documentación Swagger del backend: https://backend.ydns.eu/docs
+
 ## Arquitectura General
 
 React JS → API Local (FastAPI)/MongoDB → API Innovasoft 
