@@ -23,7 +23,7 @@ React JS (frontend) -> API Local (FastAPI)/MongoDB
 - Exponer una API REST local para el frontend React.
 - Validar y transformar solicitudes con Pydantic.
 - Persistir sesiones, tokens y auditoría en MongoDB.
-- Reenviar llamadas necesarias a la API externa de Innovasoft.
+- Reenviar llamadas necesarias a la API externa.
 - Procesar respuestas externas y devolver resultados al cliente.
 - Gestionar autenticación, clientes e intereses desde una capa de servicio.
 
@@ -48,7 +48,7 @@ El backend utiliza varios patrones establecidos:
 - **Patrón repositorio** — `operation_repository.py` y `session_repository.py` encapsulan operaciones de persistencia en MongoDB.
 - **Capa de servicios** — `auth_service.py`, `cliente_service.py` y `intereses_service.py` encapsulan la lógica de negocio y la integración.
 - **Inyección de dependencias** — FastAPI `Depends(...)` se usa en `app/util/dependencies.py` para construir instancias de servicios y recursos compartidos.
-- **Patrón adaptador/proxy** — el backend actúa como proxy para las solicitudes a la API externa de Innovasoft, agregando auditoría y persistencia local.
+- **Patrón adaptador/proxy** — el backend actúa como proxy para las solicitudes a la API externa, agregando auditoría y persistencia local.
 
 ### Principios SOLID del Backend
 
